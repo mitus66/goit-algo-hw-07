@@ -56,29 +56,23 @@ class Record:
         self.birthday = None
 
     def add_phone(self, phone):
-        try:
-            self.phones.append(Phone(phone))
-        except ValueError as e:
-            print(e)
+        self.phones.append(Phone(phone))
 
     def remove_phone(self, phone):
-        for p in self.phones:
-            if p.value == phone:
-                self.phones.remove(p)
-                return
-        raise ValueError(f"Phone number {phone} not found")
+        p = self.find_phone(phone)
+        if p:
+            self.phones.remove(p)
+        else:
+            raise ValueError(f"Phone number {phone} not found")
 
     def edit_phone(self, old_phone, new_phone):
-        found = False
-        for p in self.phones:
-            if p.value == old_phone:
-                try:
-                    p.value = Phone(new_phone).value
-                    found = True
-                    break
-                except ValueError as e:
-                    raise ValueError(f"Invalid new phone number: {e}")
-        if not found:
+        p = self.find_phone(old_phone)
+        if p:
+            try:
+                p.value = Phone(new_phone).value
+            except ValueError:
+                raise ValueError(f"Invalid new phone number {new_phone}")
+        else:
             raise ValueError(f"Phone number {old_phone} not found")
 
     def find_phone(self, phone):
@@ -138,6 +132,8 @@ class AddressBook(UserDict):
         return "\n".join(str(record) for record in self.data.values())
 
 def parse_input(user_input):
+    if not user_input:
+        return "", []  # Повертає порожню команду та порожній список аргументів
     cmd, *args = user_input.split()
     cmd = cmd.strip().lower()
     return cmd, *args
